@@ -1,4 +1,5 @@
 ﻿using MagicVilla_VillaApi.Data;
+using MagicVilla_VillaApi.Logging;
 using MagicVilla_VillaApi.Models.DTO;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
@@ -11,13 +12,20 @@ namespace MagicVilla_VillaApi.Controllers;
 public class VillaApiController : ControllerBase
 {
     // Default Logging using DI
-    private readonly ILogger<VillaApiController> _logger;
+    // private readonly ILogger<VillaApiController> _logger;
+    //
+    // public VillaApiController(ILogger<VillaApiController> logger)
+    // {
+    //     _logger = logger;
+    // }
     
-    public VillaApiController(ILogger<VillaApiController> logger)
+    // Custom Logging implemented 
+    private readonly ILogging _logger;
+    
+    public VillaApiController(ILogging logger)
     {
         _logger = logger;
     }
-    
     
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
