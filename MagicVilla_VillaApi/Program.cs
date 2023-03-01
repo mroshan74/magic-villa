@@ -1,5 +1,5 @@
 // using Serilog;
-using MagicVilla_VillaApi.Logging;
+// using MagicVilla_VillaApi.Logging;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,7 +23,7 @@ builder.Services
     .AddXmlDataContractSerializerFormatters(); //allow XML format
 
 // Register service for custom implementation of logger via DI
-builder.Services.AddSingleton<ILogging, Logging>();
+// builder.Services.AddSingleton<ILogging, Logging>();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

@@ -1,5 +1,5 @@
 ﻿using MagicVilla_VillaApi.Data;
-using MagicVilla_VillaApi.Logging;
+// using MagicVilla_VillaApi.Logging;
 using MagicVilla_VillaApi.Models.DTO;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
@@ -20,18 +20,18 @@ public class VillaApiController : ControllerBase
     // }
     
     // Custom Logging implemented 
-    private readonly ILogging _logger;
-    
-    public VillaApiController(ILogging logger)
-    {
-        _logger = logger;
-    }
+    // private readonly ILogging _logger;
+    //
+    // public VillaApiController(ILogging logger)
+    // {
+    //     _logger = logger;
+    // }
     
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public ActionResult<IEnumerable<VillaDTO>> GetVillas()
     {
-        _logger.LogInformation("Getting all villas");
+        // _logger.LogInformation("Getting all villas");
         return Ok(VillaStore.villaList);
     }
     
@@ -61,7 +61,7 @@ public class VillaApiController : ControllerBase
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public ActionResult<VillaDTO> CreateVilla([FromBody] VillaDTO villaDto)
+    public ActionResult<VillaDTO> CreateVilla([FromBody] VillaDTO? villaDto)
     {
         // if (!ModelState.IsValid)
         // {
@@ -74,7 +74,7 @@ public class VillaApiController : ControllerBase
         }
         if (villaDto is null)
         {
-            return BadRequest(villaDto);
+            return BadRequest();
         }
 
         if (villaDto.Id < 0)
@@ -84,7 +84,7 @@ public class VillaApiController : ControllerBase
 
         villaDto.Id = VillaStore.villaList.OrderByDescending(v => v.Id).FirstOrDefault().Id + 1;
         VillaStore.villaList.Add(villaDto);
-        _logger.LogInformation("New villa created with id: " + villaDto.Id);
+        // _logger.LogInformation("New villa created with id: " + villaDto.Id);
         return CreatedAtRoute("GetVilla",new { id = villaDto.Id }, villaDto);
     }
 
@@ -113,9 +113,9 @@ public class VillaApiController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [HttpPut("{id:int}", Name = "UpdateVilla")]
-    public IActionResult UpdateVilla(int id, [FromBody] VillaDTO villaDto)
+    public IActionResult UpdateVilla(int id, [FromBody] VillaDTO? villaDto)
     {
-        if (villaDto == null | id != villaDto.Id)
+        if (villaDto == null || id != villaDto.Id)
         {
             return BadRequest();
         }
@@ -137,9 +137,9 @@ public class VillaApiController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [HttpPatch("{id:int}", Name = "UpdateVilla")]
-    public IActionResult PatchVilla(int id, JsonPatchDocument<VillaDTO> patchDTO)
+    public IActionResult PatchVilla(int id, JsonPatchDocument<VillaDTO>? patchDto)
     {
-        if (patchDTO == null || id == 0)
+        if (patchDto == null || id == 0)
         {
             return BadRequest();
         }
@@ -150,7 +150,7 @@ public class VillaApiController : ControllerBase
             return NotFound();
         }
         
-        patchDTO.ApplyTo(villa, ModelState);
+        patchDto.ApplyTo(villa, ModelState);
         if (!ModelState.IsValid)
         {
             return BadRequest();
