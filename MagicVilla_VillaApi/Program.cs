@@ -21,7 +21,11 @@ var builder = WebApplication.CreateBuilder(args);
 var dbString = builder.Configuration.GetConnectionString("DefaultSQLConnection");
 builder.Services.AddDbContext<ApplicationDbContext>(option =>
 {
-    option.UseMySql(dbString, ServerVersion.AutoDetect(dbString));
+    option
+        .UseMySql(dbString, ServerVersion.AutoDetect(dbString))
+        .LogTo(Console.WriteLine, LogLevel.Warning)
+        .EnableSensitiveDataLogging()
+        .EnableDetailedErrors();
 });
 
 builder.Services

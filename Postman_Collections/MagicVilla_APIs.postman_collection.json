@@ -1,0 +1,134 @@
+{
+	"info": {
+		"_postman_id": "01f8a584-946e-44b2-a90a-549eb3fade33",
+		"name": "MagicVilla_APIs",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Get all villas",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{server}}/api/villas",
+					"host": [
+						"{{server}}"
+					],
+					"path": [
+						"api",
+						"villas"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add new villa",
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		},
+		{
+			"name": "Delete villa by id",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{server}}/api/villas/:id",
+					"host": [
+						"{{server}}"
+					],
+					"path": [
+						"api",
+						"villas",
+						":id"
+					],
+					"variable": [
+						{
+							"key": "id",
+							"value": ""
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update villa details by id",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{server}}/api/villas/:id",
+					"host": [
+						"{{server}}"
+					],
+					"path": [
+						"api",
+						"villas",
+						":id"
+					],
+					"variable": [
+						{
+							"key": "id",
+							"value": ""
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Partial update by id",
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "[\r\n  {\r\n    \"op\":\"replace\",\r\n    \"path\":\"/name\",\r\n    \"value\": \"Oreo palace\"\r\n  }\r\n]",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{server}}/api/villas/:id",
+					"host": [
+						"{{server}}"
+					],
+					"path": [
+						"api",
+						"villas",
+						":id"
+					],
+					"variable": [
+						{
+							"key": "id",
+							"value": "17"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "server",
+			"value": "https://localhost:44353"
+		}
+	]
+}

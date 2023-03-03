@@ -1,8 +1,10 @@
 ﻿using MagicVilla_VillaApi.Data;
+using MagicVilla_VillaApi.Models;
 // using MagicVilla_VillaApi.Logging;
 using MagicVilla_VillaApi.Models.DTO;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace MagicVilla_VillaApi.Controllers;
 
@@ -11,6 +13,7 @@ namespace MagicVilla_VillaApi.Controllers;
 [ApiController]
 public class VillaApiController : ControllerBase
 {
+    private readonly ApplicationDbContext _dbContext;
     // Default Logging using DI
     // private readonly ILogger<VillaApiController> _logger;
     //
@@ -26,13 +29,18 @@ public class VillaApiController : ControllerBase
     // {
     //     _logger = logger;
     // }
+
+    public VillaApiController(ApplicationDbContext dbContext)
+    {
+        _dbContext = dbContext;
+    }
     
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public ActionResult<IEnumerable<VillaDTO>> GetVillas()
     {
         // _logger.LogInformation("Getting all villas");
-        return Ok(VillaStore.villaList);
+        return Ok(_dbContext.Villas.ToList());
     }
     
     // [HttpGet("id")]
@@ -48,7 +56,7 @@ public class VillaApiController : ControllerBase
             return BadRequest();
         }
 
-        var villa = VillaStore.villaList.FirstOrDefault(v => v.Id == id);
+        var villa = _dbContext.Villas.FirstOrDefault(v => v.Id == id);
         if (villa == null)
         {
             return NotFound();
@@ -67,7 +75,7 @@ public class VillaApiController : ControllerBase
         // {
         //     return BadRequest(ModelState);
         // }
-        if (VillaStore.villaList.FirstOrDefault(v => v.Name.ToLower() == villaDto.Name.ToLower()) != null)
+        if (_dbContext.Villas.FirstOrDefault(v => v.Name.ToLower() == villaDto.Name.ToLower()) != null)
         {
             ModelState.AddModelError("CustomError", "Villa already exist");
             return BadRequest(ModelState);
@@ -82,10 +90,33 @@ public class VillaApiController : ControllerBase
             return StatusCode(StatusCodes.Status500InternalServerError);
         }
 
-        villaDto.Id = VillaStore.villaList.OrderByDescending(v => v.Id).FirstOrDefault().Id + 1;
-        VillaStore.villaList.Add(villaDto);
+        Villa model = new()
+        {
+            Amenity = villaDto.Amenity,
+            Details = villaDto.Details,
+            ImageUrl = villaDto.ImageUrl,
+            Name = villaDto.Name,
+            Occupancy = villaDto.Occupancy,
+            Rate = villaDto.Rate,
+            Sqft = villaDto.Sqft
+        };
+        _dbContext.Villas.Add(model);
+        _dbContext.SaveChanges();
+
+        VillaDTO response = new()
+        {
+            Id = model.Id,
+            Amenity = model.Amenity,
+            Details = model.Details,
+            ImageUrl = model.ImageUrl,
+            Name = model.Name,
+            Occupancy = model.Occupancy,
+            Rate = model.Rate,
+            Sqft = model.Sqft
+        };
+
         // _logger.LogInformation("New villa created with id: " + villaDto.Id);
-        return CreatedAtRoute("GetVilla",new { id = villaDto.Id }, villaDto);
+        return CreatedAtRoute("GetVilla",new { id = model.Id }, response);
     }
 
     [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -99,13 +130,14 @@ public class VillaApiController : ControllerBase
             return BadRequest();
         }
 
-        var villa = VillaStore.villaList.FirstOrDefault(v => v.Id == id);
+        var villa = _dbContext.Villas.FirstOrDefault(v => v.Id == id);
         if (villa == null)
         {
             return NotFound();
         }
 
-        VillaStore.villaList.Remove(villa);
+        _dbContext.Villas.Remove(villa);
+        _dbContext.SaveChanges();
         return NoContent();
     }
 
@@ -120,15 +152,26 @@ public class VillaApiController : ControllerBase
             return BadRequest();
         }
 
-        var villa = VillaStore.villaList.FirstOrDefault(v => v.Id == id);
-        if (villa == null)
+        var villa = _dbContext.Villas.AsNoTracking().FirstOrDefault(v => v.Id == id);
+        if (villa == null || villa.Id == 0)
         {
             return NotFound();
         }
+        
+        Villa model = new()
+        {
+            Id = villaDto.Id,
+            Amenity = villaDto.Amenity,
+            Details = villaDto.Details,
+            ImageUrl = villaDto.ImageUrl,
+            Name = villaDto.Name,
+            Occupancy = villaDto.Occupancy,
+            Rate = villaDto.Rate,
+            Sqft = villaDto.Sqft
+        };
 
-        villa.Name = villaDto.Name;
-        villa.Sqft = villaDto.Sqft;
-        villa.Occupancy = villaDto.Occupancy;
+        _dbContext.Villas.Update(model);
+        _dbContext.SaveChanges();
 
         return NoContent();
     }
@@ -144,17 +187,43 @@ public class VillaApiController : ControllerBase
             return BadRequest();
         }
 
-        var villa = VillaStore.villaList.FirstOrDefault(v => v.Id == id);
+        var villa = _dbContext.Villas.FirstOrDefault(v => v.Id == id);
         if (villa == null)
         {
             return NotFound();
         }
         
-        patchDto.ApplyTo(villa, ModelState);
+        VillaDTO modelDTO = new()
+        {
+            Amenity = villa.Amenity,
+            Details = villa.Details,
+            ImageUrl = villa.ImageUrl,
+            Name = villa.Name,
+            Occupancy = villa.Occupancy,
+            Rate = villa.Rate,
+            Sqft = villa.Sqft
+        };
+
+        patchDto.ApplyTo(modelDTO, ModelState);
+
         if (!ModelState.IsValid)
         {
             return BadRequest();
         }
+        
+        Villa model = new Villa()
+        {
+            Amenity = modelDTO.Amenity,
+            Details = modelDTO.Details,
+            ImageUrl = modelDTO.ImageUrl,
+            Name = modelDTO.Name,
+            Occupancy = modelDTO.Occupancy,
+            Rate = modelDTO.Rate,
+            Sqft = modelDTO.Sqft
+        };
+
+        _dbContext.Villas.Update(model);
+        _dbContext.SaveChanges();
 
         return NoContent();
     }
